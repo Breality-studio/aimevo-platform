@@ -1,0 +1,21 @@
+{
+  "name": "aimevo-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scripts de setup et seeding pour AÏMEVO Appwrite",
+  "scripts": {
+    "db:setup":  "tsx setup-db.ts",
+    "db:seed":   "tsx seed.ts",
+    "db:reset":  "tsx seed.ts --reset",
+    "db:all":    "tsx setup-db.ts && tsx seed.ts"
+  },
+  "dependencies": {
+    "node-appwrite": "^14.0.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "tsx":          "^4.7.0",
+    "typescript":   "^5.4.0",
+    "@types/node":  "^20.0.0"
+  }
+}
