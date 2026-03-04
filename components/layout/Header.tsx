@@ -7,12 +7,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, LogOut, UserCircle } from 'lucide-react';
 
+interface LinkType {
+  href: string;
+  label: string;
+}
+
 export function Header() {
   const { profile, logout } = useAuth();
 
-//   if (isLoading) {
-//     return <div className="h-16 bg-background border-b" />; 
-//   }
+  //   if (isLoading) {
+  //     return <div className="h-16 bg-background border-b" />; 
+  //   }
 
   const isLoggedIn = !!profile;
 
@@ -26,7 +31,8 @@ export function Header() {
   ];
 
   // Liens par rôle (connecté)
-  let privateLinks = [];
+  let privateLinks: LinkType[] = [];
+  
   if (isLoggedIn) {
     if (profile.role === 'admin') {
       privateLinks = [
@@ -72,23 +78,23 @@ export function Header() {
         <nav className="hidden md:flex items-center space-x-6">
           {isLoggedIn
             ? privateLinks.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm font-medium hover:text-primary transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))
             : publicLinks.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm font-medium hover:text-primary transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
         </nav>
 
         {/* Actions + Profil */}
