@@ -36,7 +36,7 @@ export function useMessages({
   // ─────────────────────────────────────────────
 
   const decrypt = useCallback(
-    async (msg: Message): Promise<string> => {
+    async (msg: any) => {
       if (!msg.iv) return '[Message invalide]';
 
       try {
@@ -72,14 +72,27 @@ export function useMessages({
       try {
         const msgs = await ChatService.getMessages(conversationId);
         if (cancelled) return;
-
-        const decrypted = await Promise.all(
-          msgs.map(async m => ({
-            ...m,
-            decrypted: await decrypt(m),
-          }))
+        
+        let decrypted: Message[] = []
+        // const decryptedMessage = await Promise.all(
+        //   msgs.map(
+        //     async m => ({
+        //       ...m,
+        //       decrypted: await decrypt(m),
+        //     }))
+        // );
+        
+        await Promise.all(
+          msgs.map(async (m) => {
+            try {
+              const dec = await decrypt(m);
+              return { ...m, decrypted: dec };
+            } catch (decryptErr) {
+              console.warn('Échec déchiffrement message', m.$id, decryptErr);
+              return { ...m, decrypted: '[Déchiffrement échoué]' };
+            }
+          })
         );
-
         setMessages(decrypted);
         await ChatService.markAsRead(conversationId, myUserId);
       } finally {
@@ -112,7 +125,7 @@ export function useMessages({
         });
 
         if (msg.senderId !== myUserId) {
-          ChatService.markAsRead(conversationId, myUserId).catch(() => {});
+          ChatService.markAsRead(conversationId, myUserId).catch(() => { });
         }
       }
     );
