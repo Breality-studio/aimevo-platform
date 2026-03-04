@@ -214,15 +214,17 @@ export default function AdminUsersPage() {
               ),
             },
           ]}
+
           data={filtered}
           loading={loading}
           keyFn={(u: User) => u.$id}
-          onRow={(u: User, e: React.MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (!target.closest('button') && !target.closest('select')) {
-              router.push(`/admin/users/${u.$id}`);
-            }
-          }}
+          
+          // onRow={(u: User, e: React.MouseEvent) => {
+          //   const target = e.target as HTMLElement;
+          //   if (!target.closest('button') && !target.closest('select')) {
+          //     router.push(`/admin/users/${u.$id}`);
+          //   }
+          // }}
         />
 
         {!loading && filtered.length === 0 && (

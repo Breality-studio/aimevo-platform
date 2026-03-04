@@ -328,7 +328,7 @@ export default function AdminResourcesPage() {
             </DialogTitle>
           </DialogHeader>
           <ResourceForm
-            resource={selectedResource}
+            initialResource={selectedResource}
             onSuccess={() => {
               setIsEditModalOpen(false);
               loadResources();

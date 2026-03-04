@@ -33,8 +33,6 @@ export default function AdminUserDetailsPage() {
   const userId = params?.id as string;
   const isNew = userId === 'new';
 
-  console.log(user)
-
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [userAuth, setUserAuth] = useState<any>(null); // Pour email depuis auth
@@ -59,7 +57,7 @@ export default function AdminUserDetailsPage() {
   const loadUser = async () => {
     try {
       setLoading(true);
-      
+
       setUserAuth(user);
       setForm({
         firstName: profile?.firstName ?? '',
@@ -95,9 +93,10 @@ export default function AdminUserDetailsPage() {
       if (isNew) {
         const { subscriptionId, ...createData } = form;
         await AdminService.createUser(profile.$id, createData);
+
         // Assigner abonnement si sélectionné
         if (subscriptionId) {
-          await SubscriptionService.create(profile.$id, { planId: subscriptionId });
+          await SubscriptionService.create(profile.$id, { planId: subscriptionId, billingCycle: 'monthly' });
         }
       } else {
         const { password, subscriptionId, ...updateData } = form;
@@ -120,6 +119,11 @@ export default function AdminUserDetailsPage() {
       console.error('Erreur suppression', err);
     }
   };
+
+  const toogleActive = async (selectedUserId: string) => {
+    const { password, subscriptionId, ...updateData } = form;
+    await AdminService.updateUser(selectedUserId, userId, { ...updateData, isActive: !form.isActive });
+  }
 
   return (
     <div className="animate-fade-up space-y-6">
@@ -194,7 +198,7 @@ export default function AdminUserDetailsPage() {
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant={form.isActive ? 'secondary' : 'default'} size="sm">
+                      <Button variant={form.isActive ? 'primary' : 'ghost'} size="sm">
                         {form.isActive ? 'Suspendre' : 'Activer'}
                       </Button>
                     </AlertDialogTrigger>
@@ -207,7 +211,7 @@ export default function AdminUserDetailsPage() {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => toggleActive(userId, form.isActive)}>
+                        <AlertDialogAction onClick={() => toogleActive(profile!.$id)}>
                           Confirmer
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -232,7 +236,7 @@ export default function AdminUserDetailsPage() {
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="mt-4">
+                    <Button variant="danger" size="sm" className="mt-4">
                       Supprimer l'utilisateur
                     </Button>
                   </AlertDialogTrigger>
