@@ -6,9 +6,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLoading } from '@/hooks/useLoading';
 import { TestService } from '@/services/test.service';
 import { Header } from '@/components/layout/Header';
-import { Button, Card, Alert } from '@/components/ui';
+import { Card, Alert, Badge } from '@/components/ui';
 import { AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function TestDetailPage() {
   const { testId } = useParams<{ testId: string }>();
@@ -19,7 +20,7 @@ export default function TestDetailPage() {
   const [test, setTest] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<any>({});
   const [loading, setLocalLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -45,7 +46,7 @@ export default function TestDetailPage() {
   };
 
   const handleAnswer = (questionId: string, value: string) => {
-    setAnswers(prev => ({
+    setAnswers((prev: any) => ({
       ...prev,
       [questionId]: value,
     }));
@@ -56,7 +57,7 @@ export default function TestDetailPage() {
     setLoading(true, 'Soumission des réponses...');
 
     try {
-      await TestService.submitAnswers(profile!.$id, testId, answers);
+      await TestService.submit(profile!.$id, { attemptId: testId, answers });
       alert('Test soumis avec succès ! Vos résultats sont disponibles dans votre historique.');
       router.push('/tests/history');
     } catch (err) {
@@ -75,7 +76,7 @@ export default function TestDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center px-4">
         <div className="text-center space-y-6 max-w-md">
-          <Alert variant="destructive">
+          <Alert variant="error">
             <AlertDescription>Test introuvable ou non disponible.</AlertDescription>
           </Alert>
           <Button onClick={() => router.push('/tests')}>
@@ -127,11 +128,10 @@ export default function TestDetailPage() {
                   <Button
                     key={idx}
                     variant={answers[currentQ.id] === option ? 'default' : 'outline'}
-                    className={`h-auto py-4 text-left ${
-                      answers[currentQ.id] === option
+                    className={`h-auto py-4 text-left ${answers[currentQ.id] === option
                         ? 'bg-[#C4922A] text-white hover:bg-[#A07520]'
                         : 'border-[#C4922A]/30 hover:border-[#C4922A]'
-                    }`}
+                      }`}
                     onClick={() => handleAnswer(currentQ.id, option)}
                   >
                     {option}

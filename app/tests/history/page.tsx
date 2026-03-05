@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLoading } from '@/hooks/useLoading';
 import { TestService } from '@/services/test.service'; // À créer
 import { Header } from '@/components/layout/Header';
-import { PageHeader, Card, Badge, Empty } from '@/components/ui';
+import { PageHeader, Card, Badge, Empty, Button } from '@/components/ui';
 import { Calendar, Activity, ChevronRight } from 'lucide-react';
 
 export default function TestsHistoryPage() {
@@ -25,8 +25,8 @@ export default function TestsHistoryPage() {
     setLoading(true, 'Chargement de votre historique de tests...');
 
     try {
-      const history = await TestService.getUserHistory(profile!.$id); // À implémenter
-      setTestsDone(history);
+      // const history = await TestService.getUserHistory(profile!.$id); // À implémenter
+      setTestsDone([]);
     } catch (err) {
       console.error('Erreur chargement historique tests', err);
       setTestsDone([]);
@@ -37,7 +37,7 @@ export default function TestsHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FAFAF8] to-[#F0EDE6]">
+    <div className="min-h-screen bg-linear-to-b from-[#FAFAF8] to-[#F0EDE6]">
       <Header />
 
       <main className="pt-20 pb-12 px-4 md:px-8 max-w-7xl mx-auto animate-fade-up space-y-10">
@@ -56,7 +56,7 @@ export default function TestsHistoryPage() {
           <Empty
             title="Aucun test réalisé pour le moment"
             description="Découvrez les tests disponibles et commencez votre auto-évaluation."
-            icon={<Activity className="h-12 w-12 text-[#C4922A]/50" />}
+            // icon={<Activity className="h-12 w-12 text-[#C4922A]/50" />}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -81,7 +81,7 @@ export default function TestsHistoryPage() {
                     {test.summary || 'Aucun résumé disponible'}
                   </p>
 
-                  <Button variant="outline" className="w-full border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
+                  <Button variant="primary" className="w-full border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
                     Voir les résultats détaillés
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>

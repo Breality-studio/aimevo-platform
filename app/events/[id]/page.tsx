@@ -77,7 +77,7 @@ export default function EventDetail() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center px-4">
         <div className="max-w-md text-center space-y-6">
-          <Alert variant="destructive">
+          <Alert variant="error">
             <AlertDescription>{error || 'Événement non disponible'}</AlertDescription>
           </Alert>
           <Button
@@ -114,7 +114,7 @@ export default function EventDetail() {
           </Button>
 
           <Badge
-            variant={event.type === 'online' ? 'default' : 'outline'}
+            variant={event.type === 'online' ? 'green' : 'gray'}
             className={event.type === 'online' ? 'bg-blue-600 text-white' : 'border-[#8B7355] text-[#8B7355]'}
           >
             {event.type === 'online' ? 'En ligne' : 'Présentiel'}
@@ -140,7 +140,7 @@ export default function EventDetail() {
                 </Badge>
               )}
 
-              <Badge variant="outline" className="text-[#8B7355] border-[#D4C9B8]/60 px-4 py-1.5 text-base">
+              <Badge variant="orange" className="text-[#8B7355] border-[#D4C9B8]/60 px-4 py-1.5 text-base">
                 <Users className="h-4 w-4 mr-2" />
                 {event.remainingPlaces}/{event.maxPlaces} places restantes
               </Badge>

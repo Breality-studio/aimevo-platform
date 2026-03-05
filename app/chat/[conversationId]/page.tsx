@@ -8,7 +8,7 @@ import { ChatService } from '@/services/chat.service';
 import { Header } from '@/components/layout/Header';
 import { Button, Input, Alert, Badge } from '@/components/ui';
 import { AlertDescription } from '@/components/ui/alert'
-import { Send, Paperclip, AlertTriangle, XCircle } from 'lucide-react';
+import { Send, Paperclip, AlertTriangle, XCircle, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ChatConversation() {
@@ -90,7 +90,7 @@ export default function ChatConversation() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center px-4">
         <div className="text-center space-y-6 max-w-md">
-          <Alert variant="destructive">
+          <Alert variant="error">
             <AlertDescription>Conversation introuvable ou accès non autorisé.</AlertDescription>
           </Alert>
           <Button onClick={() => router.push('/chat')}>
@@ -175,7 +175,7 @@ export default function ChatConversation() {
         <div className="border-t bg-white/90 backdrop-blur-sm sticky bottom-0 z-40">
           <div className="max-w-5xl mx-auto px-4 py-4">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="text-[#8B7355] hover:bg-[#C4922A]/10">
+              <Button variant="ghost" className="text-[#8B7355] hover:bg-[#C4922A]/10">
                 <Paperclip className="h-5 w-5" />
               </Button>
 

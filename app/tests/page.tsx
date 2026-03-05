@@ -57,7 +57,7 @@ export default function TestsPage() {
           <Empty
             title="Aucun test disponible pour le moment"
             description="De nouveaux tests seront ajoutés prochainement."
-            icon={<Brain className="h-12 w-12 text-[#C4922A]/50" />}
+            // icon={<Brain className="h-12 w-12 text-[#C4922A]/50" />}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

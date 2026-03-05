@@ -103,7 +103,7 @@ export default function EventsPage() {
           <Empty
             title="Aucun événement prévu"
             description="De nouveaux ateliers seront ajoutés prochainement."
-            icon={<Calendar className="h-12 w-12 text-[#C4922A]/50" />}
+            // icon={<Calendar className="h-12 w-12 text-[#C4922A]/50" />}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -177,7 +177,7 @@ export default function EventsPage() {
 
         {/* Bouton d'accès rapide */}
         <div className="flex justify-center mt-8">
-          <Button variant="gold" className="border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
+          <Button variant="primary" className="border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
             Voir tous les événements à venir
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>

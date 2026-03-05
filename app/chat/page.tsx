@@ -99,7 +99,7 @@ export default function ChatList() {
                   ? "Essayez avec un autre terme de recherche."
                   : "Commencez une nouvelle conversation avec un professionnel."
               }
-              icon={<MessageSquare className="h-12 w-12 text-[#C4922A]/50" />}
+              // icon={<MessageSquare className="h-12 w-12 text-[#C4922A]/50" />}
             />
           ) : (
             <div className="divide-y divide-[#D4C9B8]/30">
@@ -115,7 +115,7 @@ export default function ChatList() {
                     </div>
                     {(conv.memberUnread || 0) > 0 && (
                       <Badge
-                        variant="destructive"
+                        variant="stone"
                         className="absolute -top-1 -right-1 min-w-[1.5rem] h-6 px-2 text-sm font-bold"
                       >
                         {conv.memberUnread}

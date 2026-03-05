@@ -28,7 +28,7 @@ export const TestService = {
   /**
    * Liste les tests publics disponibles pour les utilisateurs
    */
-  async listPublic(params: { type?: TestType; language?: Lang } = {}): Promise<Test[]> {
+  async listPublic(params: { type?: TestType; language?: Lang } = {}) {
     const q: string[] = [
       Query.equal('isPublished', true),
       Query.orderDesc('$createdAt'),
@@ -39,8 +39,8 @@ export const TestService = {
     if (params.language) q.push(Query.equal('language', params.language));
 
     try {
-      const res = await databases.listDocuments<Test>(DB_ID, Col.TESTS, q);
-      return res.documents.map(parseTest).map(stripCorrectAnswers);
+      const res = await databases.listDocuments(DB_ID, Col.TESTS, q);
+      return res.documents.map(parseTest as any).map(stripCorrectAnswers as any);
     } catch (err) {
       console.error('Erreur liste tests publics', err);
       return [];
@@ -58,6 +58,20 @@ export const TestService = {
   async get(testId: string): Promise<Test> {
     const doc = await databases.getDocument<any>(DB_ID, Col.TESTS, testId);
     return stripCorrectAnswers(parseTest(doc));
+  },
+
+  /**
+   * Récupère un test public (sans réponses correctes)
+   */
+  async getPublic(testId: string) {
+    try {
+      const doc = await databases.getDocument(DB_ID, Col.TESTS, testId);
+      if (!doc.isPublished) throw new Error('Test non disponible');
+      return stripCorrectAnswers(parseTest(doc as any));
+    } catch (err) {
+      console.error('Erreur get test public', err);
+      throw new Error('Test introuvable ou non disponible');
+    }
   },
 
   async create(adminId: string, payload: CreateTestPayload): Promise<Test> {

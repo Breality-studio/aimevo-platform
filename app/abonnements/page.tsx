@@ -93,7 +93,7 @@ export default function AbonnementsPage() {
             ))}
           </div>
         ) : error ? (
-          <Alert variant="destructive" className="max-w-2xl mx-auto">
+          <Alert variant="error" className="max-w-2xl mx-auto">
             <AlertTriangle className="h-5 w-5" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>

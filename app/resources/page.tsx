@@ -104,14 +104,14 @@ export default function ResourcesPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="h-80 animate-pulse bg-gray-100 rounded-2xl" />
+              <div key={i} className="h-80 animate-pulse bg-gray-100 rounded-2xl" />
             ))}
           </div>
         ) : resources.length === 0 ? (
           <Empty
             title="Aucune ressource trouvée"
             description="Essayez d’autres filtres ou revenez plus tard."
-            icon={<BookOpen className="h-12 w-12 text-[#C4922A]/50" />}
+            // icon={<BookOpen className="h-12 w-12 text-[#C4922A]/50" />}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -126,7 +126,7 @@ export default function ResourcesPage() {
                         className="w-full h-48 object-cover"
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gradient-to-br from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center">
+                      <div className="w-full h-48 bg-linear-to-br from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center">
                         {resource.type === 'article' && <FileText className="h-12 w-12 text-[#8B7355]" />}
                         {resource.type === 'audio' && <Headphones className="h-12 w-12 text-[#8B7355]" />}
                         {resource.type === 'video' && <Video className="h-12 w-12 text-[#8B7355]" />}
@@ -151,7 +151,7 @@ export default function ResourcesPage() {
                       {resource.description}
                     </p>
                     <div className="flex items-center justify-between text-xs text-[#8B7355]">
-                      <Badge variant="outline" className="bg-[#FAFAF8]">
+                      <Badge variant="blue" className="bg-[#FAFAF8]">
                         {resource.type}
                       </Badge>
                       <span>{resource.language?.toUpperCase() || 'FR'}</span>
@@ -165,7 +165,7 @@ export default function ResourcesPage() {
 
         {/* Bouton d'accès rapide vers toutes les ressources */}
         <div className="flex justify-center mt-8">
-          <Button variant="outline" className="border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
+          <Button variant="primary" className="border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
             Explorer toutes les ressources
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>

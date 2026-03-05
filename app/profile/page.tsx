@@ -25,9 +25,9 @@ export default function ProfilePage() {
     setLoading(true, 'Chargement de votre profil...');
     
     setFormData({
-      firstName: profile.firstName || '',
-      lastName: profile.lastName || '',
-      email: user?.$id === profile.userId ? user.email : '',
+      firstName: profile!.firstName || '',
+      lastName: profile!.lastName || '',
+      email: user?.$id === profile!.userId ? user.email : '',
     });
 
     setLoading(false);
@@ -86,7 +86,7 @@ export default function ProfilePage() {
                   </AvatarFallback>
                 </Avatar>
                 <Button
-                  size="icon"
+                  // size="icon"
                   variant="ghost"
                   className="absolute bottom-0 right-0 bg-white shadow-md rounded-full"
                   onClick={() => alert('Fonctionnalité d’avatar en développement')}
@@ -101,7 +101,7 @@ export default function ProfilePage() {
                 </h2>
                 <p className="text-[#8B7355] flex items-center justify-center md:justify-start gap-2">
                   <Mail className="h-4 w-4" />
-                  {profile.email}
+                  {user!.email}
                 </p>
                 <p className="text-sm text-[#8B7355] flex items-center justify-center md:justify-start gap-2">
                   <Calendar className="h-4 w-4" />
@@ -148,7 +148,7 @@ export default function ProfilePage() {
                       >
                         Enregistrer
                       </Button>
-                      <Button variant="outline" onClick={() => setEditMode(false)}>
+                      <Button variant="primary" onClick={() => setEditMode(false)}>
                         Annuler
                       </Button>
                     </div>
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-medium">{user?.email || profile.email}</p>
+                      <p className="font-medium">{user?.email || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Langue préférée</p>

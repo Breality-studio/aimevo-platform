@@ -59,9 +59,9 @@ export default function ResourceDetail() {
 
   if (error || !resource) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-linear-to-b from-[#FAFAF8] to-[#F0EDE6] flex items-center justify-center px-4">
         <div className="max-w-md text-center space-y-6">
-          <Alert variant="destructive">
+          <Alert variant="error">
             <AlertDescription>{error || 'Ressource non disponible'}</AlertDescription>
           </Alert>
           <Button
@@ -96,7 +96,7 @@ export default function ResourceDetail() {
           </Button>
 
           <Badge
-            variant={resource.isPremium ? 'default' : 'outline'}
+            variant={resource.isPremium ? 'gold' : 'purple'}
             className={resource.isPremium ? 'bg-[#C4922A] text-white' : 'border-[#8B7355] text-[#8B7355]'}
           >
             {resource.isPremium ? 'Premium' : 'Gratuit'}
@@ -163,7 +163,7 @@ export default function ResourceDetail() {
                 )}
 
                 {resource.type === 'pdf' && resource.externalUrl && (
-                  <Button asChild variant="outline" className="w-full border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
+                  <Button variant="primary" className="w-full border-[#C4922A] text-[#C4922A] hover:bg-[#C4922A]/10">
                     <a href={resource.externalUrl} target="_blank" rel="noopener noreferrer">
                       Ouvrir le PDF
                     </a>
