@@ -64,10 +64,7 @@ export const AuthService = {
 
             // 4. Déclencher la vérification d'email officielle Appwrite
             // URL de redirection après clic sur le lien de vérification
-            const verificationUrl =
-                typeof window !== 'undefined' && window.location.hostname === 'localhost'
-                    ? 'http://localhost:3000/verify'
-                    : 'https://aimevo-platform.vercel.app/verify';
+            const verificationUrl = 'https://aimevo-platform.vercel.app/verify';
 
             await account.createVerification(verificationUrl);
 

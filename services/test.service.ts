@@ -25,6 +25,28 @@ export const TestService = {
     return res.documents.map(parseTest);
   },
 
+  /**
+   * Liste les tests publics disponibles pour les utilisateurs
+   */
+  async listPublic(params: { type?: TestType; language?: Lang } = {}): Promise<Test[]> {
+    const q: string[] = [
+      Query.equal('isPublished', true),
+      Query.orderDesc('$createdAt'),
+      Query.limit(20),
+    ];
+
+    if (params.type) q.push(Query.equal('type', params.type));
+    if (params.language) q.push(Query.equal('language', params.language));
+
+    try {
+      const res = await databases.listDocuments<Test>(DB_ID, Col.TESTS, q);
+      return res.documents.map(parseTest).map(stripCorrectAnswers);
+    } catch (err) {
+      console.error('Erreur liste tests publics', err);
+      return [];
+    }
+  },
+
   async list(params: { type?: TestType; language?: Lang } = {}): Promise<Test[]> {
     const q: string[] = [Query.equal('isPublished', true), Query.orderDesc('$createdAt')];
     if (params.type) q.push(Query.equal('type', params.type));

@@ -15,7 +15,7 @@ interface ResourceViewerProps {
 
 export default function ResourceViewer({ resource }: ResourceViewerProps) {
   return (
-    <Card>
+    <Card className="h-[480px] overflow-auto">
       <CardHeader>
         <CardTitle>{resource.title}</CardTitle>
       </CardHeader>
@@ -36,13 +36,22 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
 
         {/* Video / External */}
         {(resource.type === 'video' || resource.type === 'external') && (
-          <div className="aspect-video rounded-xl overflow-hidden border">
+          <div className="aspect-video rounded-xl overflow-hidden border border-[#D4C9B8]/60 shadow-sm relative">
             <iframe
               src={resource.iframeUrl || resource.externalUrl}
-              title={resource.title}
+              title={resource.title || "Vidéo de la ressource"}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              className="w-full h-full"
+              referrerPolicy="strict-origin-when-cross-origin"
+              className="w-full h-full absolute inset-0"
             />
+            {!resource.iframeUrl && !resource.externalUrl && (
+              <div className="absolute inset-0 flex items-center justify-center bg-[#FAFAF8]/80">
+                <p className="text-[#8B7355] text-center px-6">
+                  Vidéo non disponible pour le moment
+                </p>
+              </div>
+            )}
           </div>
         )}
 

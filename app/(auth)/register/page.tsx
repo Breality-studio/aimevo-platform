@@ -25,12 +25,12 @@ export default function SignupPage() {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   // Redirection si déjà connecté
-  if (isLoggedIn) {
+  if (profile && isLoggedIn) {
     const redirectPath =
       role === 'admin' ? '/admin/dashboard' :
         role === 'professional' ? '/pro/dashboard' :
           '/dashboard';
-    router.replace(redirectPath);
+    if(user.emailVerification == true) router.replace(redirectPath);
     return null;
   }
 
