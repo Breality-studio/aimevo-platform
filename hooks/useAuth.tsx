@@ -20,8 +20,16 @@ interface AuthState {
   role: 'guest' | 'member' | 'professional' | 'admin';
 }
 
+interface RegisterPayload {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
 interface AuthActions {
   login: (email: string, password: string) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   getCurrentRole: () => AuthState['role'];
@@ -98,6 +106,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await refreshUser({ redirect: true });
   }, [refreshUser]);
 
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      await AuthService.register(payload)
+    }, [refreshUser])
+
   const logout = useCallback(async () => {
     await AuthService.logout(state.user?.$id);
     setState({
@@ -113,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user, router]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, refreshUser, getCurrentRole }}>
+    <AuthContext.Provider value={{ ...state, login, logout, refreshUser, register, getCurrentRole }}>
       {children}
     </AuthContext.Provider>
   );

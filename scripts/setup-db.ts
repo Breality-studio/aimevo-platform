@@ -98,6 +98,7 @@ const idx = (col: string, key: string, type: IndexType, attrs: string[], orders?
 
 async function setupProfiles() {
   console.log('\n👤 Collection: profiles');
+  await 
   await createCollection('profiles', 'Profiles', [
     Permission.read(Role.label('admin')),
     Permission.read(Role.label('professional')),
@@ -245,7 +246,7 @@ async function setupSubscriptions() {
   await str('subscriptions', 'paymentMethod', 30, false);
 
   // Champs ajoutés selon vos instructions
-  await int('subscriptions', 'amount', true, 0, 0);                    // Montant total de l'abonnement
+  await int('subscriptions', 'amount', false, 0, 0);                    // Montant total de l'abonnement
   await str('subscriptions', 'lastPaymentId', 36, false);              // Dernier paiement réussi
   await dt('subscriptions', 'nextBillingDate', false);                 // Date prévue du prochain prélèvement
   await str('subscriptions', 'providerSubscriptionId', 100, false);    // ID externe chez le fournisseur (KKIAPay, etc.)
@@ -333,7 +334,7 @@ async function setupResources() {
   await str('resources', 'createdBy', 36, true);
   await bool('resources', 'isPublished', false, false);
   await dt('resources', 'publishedAt', false);
-  await str('resources', 'externalUrl', 2000, false);          // Lien YouTube, PDF, SoundCloud, etc.
+  await str('resources', 'externalUrl', 750, false);          // Lien YouTube, PDF, SoundCloud, etc.
   await str('resources', 'iframeUrl', 2000, false);            // Lien iframe spécifique (ex. embed YouTube)
   await str('resources', 'contentBase64', 2000000, false);     // Base64 pour article, audio ou vidéo embarquée
   await str('resources', 'previewImageBase64', 1000000, false); // Image de couverture en base64

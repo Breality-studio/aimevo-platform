@@ -21,11 +21,13 @@ import { CryptoService, KeyStorage } from './crypto.service';
 export const AuthService = {
 
     // ── Inscription ─────────────────────────────────────────────────────────────
-    async signup(payload: SignupPayload): Promise<{ userId: string }> {
+    async register(payload: SignupPayload): Promise<{ userId: string }> {
         const { email, password, firstName, lastName, preferredLanguage = 'fr' } = payload;
 
         const user = await account.create(
-            ID.unique(), email, password, `${firstName} ${lastName}`,
+            ID.unique(), 
+            email, 
+            password,
         );
 
         // Créer le profil avec le même $id que le compte Auth
@@ -203,7 +205,6 @@ export const AuthService = {
 };
 
 // ─── Helper interne ───────────────────────────────────────────────────────────
-
 async function _syncPublicKey(userId: string, publicKey: string) {
     try {
         const p = await databases.getDocument(DB_ID, Col.PROFILES, userId);
