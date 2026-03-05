@@ -98,11 +98,15 @@ const idx = (col: string, key: string, type: IndexType, attrs: string[], orders?
 
 async function setupProfiles() {
   console.log('\n👤 Collection: profiles');
-  await 
   await createCollection('profiles', 'Profiles', [
     Permission.read(Role.label('admin')),
+    Permission.update(Role.label('admin')),
+
     Permission.read(Role.label('professional')),
+
     Permission.create(Role.users()),
+    Permission.read(Role.users()),
+    Permission.update(Role.users()),
     Permission.delete(Role.label('admin')),
   ]);
   await wait(500);
@@ -280,7 +284,7 @@ async function setupPayments() {
   await int('payments', 'amount', true, undefined, 0);
   await str('payments', 'currency', 5, false, 'XOF');
   await str('payments', 'method', 30, true);
-  await str('payments', 'providerName', 30, false);                    // Conservé
+  await str('payments', 'providerName', 30, false);
   await str('payments', 'providerReference', 200, false);
   await str('payments', 'providerTransactionId', 200, false);
   await str('payments', 'status', 20, false, 'pending');
@@ -290,9 +294,9 @@ async function setupPayments() {
   await dt('payments', 'refundedAt', false);
 
   // Champs ajoutés / renforcés selon vos instructions
-  await dt('payments', 'paidAt', false);                               // Date de paiement effectif (null par défaut)
-  await str('payments', 'refundId', 100, false);                       // ID du remboursement (null par défaut)
-  await int('payments', 'refundedAmount', false, 0);                   // Montant remboursé (0 par défaut)
+  await dt('payments', 'paidAt', false);
+  await str('payments', 'refundId', 100, false);
+  await int('payments', 'refundedAmount', false, 0);
 
   await wait(1000);
 
@@ -347,8 +351,9 @@ async function setupResources() {
   await idx('resources', 'idx_isPublished', IndexType.Key, ['isPublished']);
   await idx('resources', 'idx_createdBy', IndexType.Key, ['createdBy']);
   await idx('resources', 'idx_parentId', IndexType.Key, ['parentId']);
+  
   // Indexes supplémentaires (optionnels mais recommandés)
-  await idx('resources', 'idx_externalUrl', IndexType.Key, ['externalUrl']);
+  // await idx('resources', 'idx_externalUrl', IndexType.Key, ['externalUrl']);
   await idx('resources', 'idx_isPremium_published', IndexType.Key, ['isPremium', 'isPublished']);
 
 }
@@ -358,8 +363,9 @@ async function setupResources() {
 async function setupConversations() {
   console.log('\n💬 Collection: conversations');
   await createCollection('conversations', 'Conversations', [
-    Permission.read(Role.label('admin')),
+    Permission.read(Role.users()),
     Permission.create(Role.users()),
+    Permission.read(Role.label('admin')),
     Permission.update(Role.label('admin')),
     Permission.delete(Role.label('admin')),
   ]);
@@ -367,13 +373,18 @@ async function setupConversations() {
 
   await str('conversations', 'memberId', 36, true);
   await str('conversations', 'professionalId', 36, true);
+  await strArr('conversations', 'participants', 36, true); // Tableau des IDs : [memberId, professionalId]
   await str('conversations', 'memberPublicKey', 2048, false);
   await str('conversations', 'proPublicKey', 2048, false);
-  await str('conversations', 'status', 20, false, 'open');
+  await str('conversations', 'status', 20, false, 'open'); // open, closed, archived
   await dt('conversations', 'lastMessageAt', false);
   await str('conversations', 'lastMessagePreview', 100, false);
   await int('conversations', 'memberUnread', false, 0, 0);
   await int('conversations', 'proUnread', false, 0, 0);
+
+  // Optionnel : notes internes admin
+  await str('conversations', 'adminNotes', 2000, false);
+
   await wait(1000);
 
   await idx('conversations', 'idx_memberId', IndexType.Key, ['memberId']);
@@ -381,6 +392,9 @@ async function setupConversations() {
   await idx('conversations', 'idx_status', IndexType.Key, ['status']);
   await idx('conversations', 'idx_pair', IndexType.Unique, ['memberId', 'professionalId']);
   await idx('conversations', 'idx_lastMsg', IndexType.Key, ['lastMessageAt']);
+
+  // Index très utile pour les listes par participant
+  // await idx('conversations', 'idx_participants', IndexType.Key, ['participants']);
 }
 
 // ─── 9. messages ─────────────────────────────────────────────────────────────
@@ -401,11 +415,15 @@ async function setupMessages() {
   await str('messages', 'type', 10, false, 'text');
   await str('messages', 'audioFileId', 36, false);
   await bool('messages', 'isRead', false, false);
+
+  // Métadonnées utiles
+  await dt('messages', 'sentAt', false);                 // Date d’envoi (remplace $createdAt si besoin)
   await wait(1000);
 
   await idx('messages', 'idx_conversationId', IndexType.Key, ['conversationId']);
   await idx('messages', 'idx_senderId', IndexType.Key, ['senderId']);
   await idx('messages', 'idx_conv_created', IndexType.Key, ['conversationId', '$createdAt']);
+  await idx('messages', 'idx_conv_sent', IndexType.Key, ['conversationId', 'sentAt']);
 }
 
 // ─── 10. tests ───────────────────────────────────────────────────────────────

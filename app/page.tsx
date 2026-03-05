@@ -301,6 +301,35 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Notre équipe */}
+      <section id="team" className="py-20 px-6 bg-[#1c1c1b]">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display text-4xl font-light text-[#F3EFE7] text-center mb-12">
+            Notre équipe
+          </h2>
+          <div className="grid grid-cols-1 justify-center items-center sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { name: 'Jeremine DEGBO', role: 'Animatrice Culturel', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+              { name: 'Ange-Marie DATINON', role: 'Psychologue clinicien', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+              { name: 'Amelée AGBOKOU', role: 'Spécialiste mindfulness', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+              { name: 'Rosius HOUNTON', role: 'Community Manager', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+              { name: 'Espérance Bill', role: 'Développeur & Designer', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+            ].map((member) => (
+              <div key={member.name} className="text-center border-[#D4C9B8]/60 hover:shadow-lg transition-shadow">
+                <div className="relative w-32 h-32 mx-auto mb-4 border-[#D4C9B8]/60 hover:shadow-lg transition-shadow overflow-hidden rounded-full">
+                  <Image src={member.image}
+                    alt={`${member.name} ${member.role}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <h3 className="font-medium text-lg text-[#C4922A]">{member.name}</h3>
+                <p className="text-sm text-[#8B7355]">{member.role}</p>
+              </div>))}
+          </div>
+        </div>
+      </section>
+
       {/* PLANS & TARIFS */}
       <section id="plans" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
@@ -362,34 +391,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Notre équipe */}
-      <section id="team" className="py-20 px-6 bg-[#F0EDE6]">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-display text-4xl font-bold text-[#0F0D0A] text-center mb-12">
-            Notre équipe
-          </h2>
-          <div className="grid grid-cols-1 justify-center items-center sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { name: 'Jeremine DEGBO', role: 'Animatrice Culturel', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-              { name: 'Ange-Marie DATINON', role: 'Psychologue clinicien', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-              { name: 'Amelée AGBOKOU', role: 'Spécialiste mindfulness', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-              { name: 'Rosius HOUNTON', role: 'Psychologur', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-              { name: 'Espérance Bill', role: 'Développeur & Designer', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-            ].map((member) => (
-              <div key={member.name} className="text-center border-[#D4C9B8]/60 hover:shadow-lg transition-shadow">
-                <div className="relative w-32 h-32 mx-auto mb-4 overflow-hidden rounded-full">
-                  <Image src={member.image}
-                    alt={`${member.name} ${member.role}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <h3 className="font-medium text-lg">{member.name}</h3>
-                <p className="text-sm text-[#8B7355]">{member.role}</p>
-              </div>))}
-          </div>
-        </div>
-      </section>
 
       {/* APPLICATION MOBILE */}
       <section className="py-24 px-6 bg-[#F3EFE7]">

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
 import { AuthProvider } from '@/hooks/useAuth';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { LoadingProvider } from '@/hooks/useLoading';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'], weight: ['300', '400', '500', '600', '700'],
@@ -31,7 +32,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <TooltipProvider>
-            {children}
+            <LoadingProvider>
+              {children}
+            </LoadingProvider>
           </TooltipProvider>
         </AuthProvider>
       </body>

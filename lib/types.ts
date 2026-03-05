@@ -144,7 +144,7 @@ export interface Resource {
   audioUrl?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
-  locked?: boolean;       // true si premium sans abonnement
+  locked?: boolean;       
 }
 
 export interface Conversation {
@@ -154,6 +154,7 @@ export interface Conversation {
   memberId: string;
   professionalId: string;
   memberPublicKey?: string;
+  participants: string[];
   proPublicKey?: string;
   status: ConvStatus;
   lastMessageAt?: string;

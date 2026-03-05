@@ -20,36 +20,6 @@ import { CryptoService, KeyStorage } from './crypto.service';
 
 export const AuthService = {
 
-    // ── Inscription ─────────────────────────────────────────────────────────────
-    async register(payload: SignupPayload): Promise<{ userId: string }> {
-        const { email, password, firstName, lastName, preferredLanguage = 'fr' } = payload;
-
-        const user = await account.create(
-            ID.unique(), 
-            email, 
-            password,
-        );
-
-        // Créer le profil avec le même $id que le compte Auth
-        await databases.createDocument(DB_ID, Col.PROFILES, user.$id, {
-            userId: user.$id,
-            firstName,
-            lastName,
-            preferredLanguage: preferredLanguage as Lang,
-            role: 'member' as UserRole,
-            profileCompleted: false,
-            isActive: true,
-        });
-
-        // Déclencher l'envoi OTP par email
-        await functions.createExecution(
-            Fn.SEND_OTP,
-            JSON.stringify({ userId: user.$id, email }),
-        );
-
-        return { userId: user.$id };
-    },
-
     // ── Login ────────────────────────────────────────────────────────────────────
     async login(email: string, password: string) {
         const session = await account.createEmailPasswordSession(email, password);
@@ -60,6 +30,68 @@ export const AuthService = {
         await _syncPublicKey(user.$id, publicKey);
 
         return { session, userId: user.$id };
+    },
+
+    // ── Inscription ─────────────────────────────────────────────────────────────
+    // services/auth.service.ts
+
+    async register(payload: SignupPayload): Promise<{ userId: string; session: any }> {
+        const { email, password, firstName, lastName, preferredLanguage = 'fr' } = payload;
+
+        try {
+            // 1. Créer le compte utilisateur (mode guest)
+            const user = await account.create(
+                ID.unique(),
+                email.trim().toLowerCase(),
+                password,
+                `${firstName.trim()} ${lastName.trim()}`.trim()
+            );
+
+            // 2. Créer immédiatement une session active (connexion automatique)
+            const session = await account.createEmailPasswordSession(email, password);
+
+            // 3. Créer le profil associé (maintenant possible car authentifié)
+            await databases.createDocument(DB_ID, Col.PROFILES, user.$id, {
+                userId: user.$id,
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                preferredLanguage: preferredLanguage as Lang,
+                role: 'member' as UserRole,
+                profileCompleted: false,
+                isActive: true,
+                avatarFileId: null,
+            });
+
+            // 4. Déclencher la vérification d'email officielle Appwrite
+            // URL de redirection après clic sur le lien de vérification
+            const verificationUrl =
+                typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                    ? 'http://localhost:3000/verify'
+                    : 'https://aimevo-platform.vercel.app/verify';
+
+            await account.createVerification(verificationUrl);
+
+            // 5. (Optionnel) Déclencher votre fonction personnalisée d'envoi OTP
+            // Si vous l'utilisez en complément de la vérification Appwrite
+            // await functions.createExecution(
+            //     Fn.SEND_OTP,
+            //     JSON.stringify({ userId: user.$id, email: email.trim() })
+            // );
+
+            // Retourner les informations utiles
+            return { userId: user.$id, session };
+        } catch (err: any) {
+            console.error('Erreur lors de l\'inscription complète :', err);
+
+            if (err.type === 'user_already_exists') {
+                throw new Error('Cet email est déjà utilisé.');
+            }
+            if (err.type === 'general_argument_invalid') {
+                throw new Error('Les informations fournies sont invalides.');
+            }
+
+            throw new Error(err.message || 'Échec de l\'inscription. Veuillez réessayer.');
+        }
     },
 
     // ── OAuth — redirection navigateur ──────────────────────────────────────────
@@ -97,6 +129,9 @@ export const AuthService = {
         await _syncPublicKey(user.$id, publicKey);
     },
 
+    async verifyEmail(userId: string, secret: string): Promise<void> {
+        await account.updateVerification(userId, secret);
+    },
     // ── OTP ──────────────────────────────────────────────────────────────────────
     async verifyOtp(userId: string, code: string): Promise<void> {
         const res = await functions.createExecution(
