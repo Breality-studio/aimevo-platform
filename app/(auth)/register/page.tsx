@@ -10,7 +10,7 @@ import { Mail } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function SignupPage() {
-  const { isLoggedIn, role, register, profile, refreshUser } = useAuth();
+  const { isLoggedIn, role, register, profile, refreshUser, user } = useAuth();
   const router = useRouter();
 
   const [firstName, setFirstName] = useState('');
