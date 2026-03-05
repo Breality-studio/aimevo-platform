@@ -107,7 +107,7 @@ export const ChatService = {
         DB_ID,
         Col.CONVERSATIONS,
         [
-          Query.contains('participants', proId), // ← Correction clé
+          Query.contains('participants', proId),
           Query.equal('status', 'open'),
           Query.orderDesc('lastMessageAt'),
           Query.limit(30),
@@ -120,35 +120,134 @@ export const ChatService = {
     }
   },
 
-  /**
-   * Récupère une conversation + ses messages
-   */
-  async getWithMessages(
-    conversationId: string,
-    limit: number = 50
-  ) {
-    try {
-      const [conv, msgs] = await Promise.all([
-        databases.getDocument(DB_ID, Col.CONVERSATIONS, conversationId),
-        databases.listDocuments(
-          DB_ID,
-          Col.MESSAGES,
-          [
-            Query.equal('conversationId', conversationId),
-            Query.orderAsc('sentAt'),
-            Query.limit(limit),
-          ]
-        ),
-      ]);
+  // Détail d'une conversation + messages
+  async getAdmin(conversationId: string): Promise<{ conversation: any; messages: any[] }> {
+    const [conv, msgs] = await Promise.all([
+      databases.getDocument<any>(DB_ID, Col.CONVERSATIONS, conversationId),
+      databases.listDocuments<any>(DB_ID, Col.MESSAGES, [
+        Query.equal('conversationId', conversationId),
+        Query.orderAsc('sentAt'),
+        Query.limit(100), // ou pagination
+      ]),
+    ]);
 
-      return {
-        conversation: conv,
-        messages: msgs.documents,
-      };
-    } catch (err) {
-      console.error('Erreur récupération conversation + messages', err);
-      throw err;
+    // Enrichir noms (optionnel)
+    const memberId = conv.participants.find((id: string) => id !== conv.professionalId);
+    const [memberProf, proProf] = await Promise.all([
+      databases.getDocument(DB_ID, Col.PROFILES, memberId).catch(() => ({})) as Promise<Profile>,
+      databases.getDocument(DB_ID, Col.PROFILES, conv.participants.find((id: string) => id !== memberId)).catch(() => ({})) as Promise<Profile>,
+    ]);
+
+    return {
+      conversation: {
+        ...conv,
+        memberName: `${memberProf.firstName || ''} ${memberProf.lastName || ''}`.trim() || 'Anonyme',
+        proName: `${proProf.firstName || ''} ${proProf.lastName || ''}`.trim() || 'Anonyme',
+      },
+      messages: msgs.documents,
+    };
+  },
+
+  // Fermer une conversation
+  async close(conversationId: string, closedBy: string, reason?: string): Promise<void> {
+    await databases.updateDocument(DB_ID, Col.CONVERSATIONS, conversationId, {
+      status: 'closed',
+      closedBy,
+      closedReason: reason || null,
+      closedAt: new Date().toISOString(),
+    });
+  },
+
+  // Ajouter une note admin
+  async addAdminNote(conversationId: string, note: string): Promise<void> {
+    const conv = await databases.getDocument<any>(DB_ID, Col.CONVERSATIONS, conversationId);
+    const notes = conv.adminNotes ? `${conv.adminNotes}\n---\n${note}` : note;
+
+    await databases.updateDocument(DB_ID, Col.CONVERSATIONS, conversationId, {
+      adminNotes: notes,
+    });
+  },
+
+  // Liste des professionnels disponibles
+  async listAvailableProfessionals(): Promise<any[]> {
+    const res = await databases.listDocuments<any>(DB_ID, Col.PROFILES, [
+      Query.equal('role', 'professional'),
+      Query.equal('availabilityStatus', 'online'),
+      Query.limit(50),
+    ]);
+    return res.documents;
+  },
+
+  // Transfert à un nouveau professionnel
+  async transfer(conversationId: string, newProfessionalId: string, transferredBy: string): Promise<void> {
+    const conv = await databases.getDocument<any>(DB_ID, Col.CONVERSATIONS, conversationId);
+    if (!conv.participants.includes(conv.professionalId)) {
+      throw new Error('Professionnel actuel non trouvé');
     }
+
+    const newParticipants = conv.participants.map((id: string) =>
+      id === conv.professionalId ? newProfessionalId : id
+    );
+
+    await databases.updateDocument(DB_ID, Col.CONVERSATIONS, conversationId, {
+      participants: newParticipants,
+      transferredBy,
+      transferredAt: new Date().toISOString(),
+    });
+
+    // Notification aux parties
+    await functions.createExecution(Fn.NOTIFY, JSON.stringify({
+      action: 'conversation_transferred',
+      conversationId,
+      oldProId: conv.professionalId,
+      newProId: newProfessionalId,
+      memberId: newParticipants.find((id: string) => id !== newProfessionalId),
+    })).catch(console.error);
+  },
+
+  async getOrCreateConversation(
+    memberId: string,
+    professionalId: string
+  ) {
+    const existing = await databases.listDocuments(
+      DB_ID,
+      Col.CONVERSATIONS,
+      [
+        Query.equal("memberId", memberId),
+        Query.equal("professionalId", professionalId),
+        Query.limit(1),
+      ]
+    );
+
+    if (existing.documents.length) {
+      return existing.documents[0];
+    }
+
+    const [memberKey, proKey] = await Promise.all([
+      AuthService.getPublicKey(memberId),
+      AuthService.getPublicKey(professionalId),
+    ]);
+
+    return databases.createDocument(
+      DB_ID,
+      Col.CONVERSATIONS,
+      ID.unique(),
+      {
+        memberId,
+        professionalId,
+        memberPublicKey: memberKey,
+        proPublicKey: proKey,
+        status: "open" as ConvStatus,
+        memberUnread: 0,
+        proUnread: 0,
+      },
+      [
+        Permission.read(Role.user(memberId)),
+        Permission.read(Role.user(professionalId)),
+        Permission.read(Role.label("admin")),
+        Permission.update(Role.label("admin")),
+      ]
+    );
   },
 
   /**
@@ -178,67 +277,40 @@ export const ChatService = {
     }
   },
 
-  /**
-   * Obtient ou crée une conversation entre un membre et un pro
-   */
-  async getOrCreateConversation(
-    memberId: string,
-    professionalId: string
-  ) {
-    try {
-      const existing = await databases.listDocuments(
-        DB_ID,
-        Col.CONVERSATIONS,
-        [
-          Query.equal("memberId", memberId),
-          Query.equal("professionalId", professionalId),
-          Query.limit(1),
-        ]
-      );
-
-      if (existing.documents.length > 0) {
-        return existing.documents[0];
-      }
-
-      const [memberKey, proKey] = await Promise.all([
-        AuthService.getPublicKey(memberId),
-        AuthService.getPublicKey(professionalId),
-      ]);
-
-      const conv = await databases.createDocument(
-        DB_ID,
-        Col.CONVERSATIONS,
-        ID.unique(),
-        {
-          memberId,
-          professionalId,
-          participants: [memberId, professionalId],
-          memberPublicKey: memberKey,
-          proPublicKey: proKey,
-          status: "open" as ConvStatus,
-          memberUnread: 0,
-          proUnread: 0,
-        },
-        [
-          Permission.read(Role.user(memberId)),
-          Permission.read(Role.user(professionalId)),
-          Permission.update(Role.user(memberId)),
-          Permission.update(Role.user(professionalId)),
-          Permission.read(Role.label("admin")),
-          Permission.update(Role.label("admin")),
-        ]
-      );
-
-      return conv;
-    } catch (err) {
-      console.error('Erreur getOrCreateConversation', err);
-      throw err;
-    }
-  },
-
   // ─────────────────────────────────────────────
   // Messages
   // ─────────────────────────────────────────────
+
+  /**
+ * Récupère une conversation + ses messages
+ */
+  async getWithMessages(
+    conversationId: string,
+    limit: number = 50
+  ) {
+    try {
+      const [conv, msgs] = await Promise.all([
+        databases.getDocument(DB_ID, Col.CONVERSATIONS, conversationId),
+        databases.listDocuments(
+          DB_ID,
+          Col.MESSAGES,
+          [
+            Query.equal('conversationId', conversationId),
+            Query.orderAsc('sentAt'),
+            Query.limit(limit),
+          ]
+        ),
+      ]);
+
+      return {
+        conversation: conv,
+        messages: msgs.documents,
+      };
+    } catch (err) {
+      console.error('Erreur récupération conversation + messages', err);
+      throw err;
+    }
+  },
 
   async getMessages(
     conversationId: string,
